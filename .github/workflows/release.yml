@@ -1,0 +1,52 @@
+name: Multi-platform Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            binary_src: currency_convertor
+            asset_name: currency_convertor-linux-amd64
+          - os: macos-latest
+            binary_src: currency_convertor
+            asset_name: currency_convertor-macos-arm64
+          - os: windows-latest
+            binary_src: currency_convertor.exe
+            asset_name: currency_convertor-windows-amd64.exe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Rename binary for release
+        shell: bash
+        run: |
+          cd target/release
+          mv ${{ matrix.binary_src }} ${{ matrix.asset_name }}
+
+      - name: Upload Binary to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v0.1.${{ github.run_number }}"
+          name: "Release v0.1.${{ github.run_number }}"
+          files: target/release/${{ matrix.asset_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
