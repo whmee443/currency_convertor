@@ -1,8 +1,15 @@
 [package]
 name = "currency_convertor"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
+description = "Simple CLI currency convertor"
+license = "BSD-2"
+repository = "https://github.com/whmee443/currency_convertor"
 
 [dependencies]
 serde = { version = "1.0.229", features = ["derive"] }
 ureq = { version = "3.4.0", features = ["json"] }
+
+[profile.release]
+strip = true
+lto = true
