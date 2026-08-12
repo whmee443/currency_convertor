@@ -2,9 +2,8 @@ name: Multi-platform Release
 
 on:
   push:
-    branches:
-      - main
-      - master
+    tags:
+      - 'v*.*.*'
 
 permissions:
   contents: write
@@ -34,7 +33,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build release binary
-        run: cargo build --release
+        run: cargo build --release --locked
 
       - name: Rename binary for release
         shell: bash
@@ -45,8 +44,8 @@ jobs:
       - name: Upload Binary to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v0.1.${{ github.run_number }}"
-          name: "Release v0.1.${{ github.run_number }}"
+          tag_name: ${{ github.ref_name }}
+          name: "Release ${{ github.ref_name }}"
           files: target/release/${{ matrix.asset_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
